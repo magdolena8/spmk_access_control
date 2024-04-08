@@ -3,7 +3,7 @@ import { AccessPointRepository } from './access_point.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { AccessPointDocument } from './schemas/access-point.schema';
 import { CreateAccessPointReqDto } from './dto/create-access-point.req.dto copy';
-import { CreateAccessPointMessage } from './dto/create-access-pint.message';
+import { CreateAccessPointMessage } from './dto/create-access-point.message';
 
 @Injectable()
 export class AccessPointService {

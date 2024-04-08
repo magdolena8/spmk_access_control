@@ -6,6 +6,8 @@ import {
   RmqRecordBuilder,
 } from '@nestjs/microservices';
 import { MessagingModuleOptions } from './messaging-module-options.interface';
+import { RMQCommand } from './patterns/comand.enum';
+import { RMQEvent } from './patterns/event.enum';
 
 @Injectable()
 export class MessagingService {
@@ -24,14 +26,11 @@ export class MessagingService {
     });
   }
 
-  public async sendToQueue(command: string, data: any): Promise<any> {
-    return this.client.send(command, data).subscribe();
+  public async sendToQueue(pattern: RMQCommand, data: any): Promise<any> {
+    return this.client.send(pattern, new RmqRecordBuilder(data).build());
   }
 
-  public async emitToQueue(message: string, data: any): Promise<void> {
-    // this.client.emit(this.options.queueName, data).subscribe({
-    //   error: (error) => console.error(error),
-    //   complete: () => console.log('Message sent successfully'),
-    // });
+  public async emitToQueue(pattern: RMQEvent, data: any): Promise<void> {
+    this.client.emit(pattern, new RmqRecordBuilder(data).build());
   }
 }

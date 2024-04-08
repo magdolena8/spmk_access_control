@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfigureDeviceReqDto } from './dto/configure-device.req.dto';
 import { DeviceRepository } from './device.repository';
 import { DeviceDocument } from './schemas/device.schema';
-import { RegisterDeviceReqDto } from 'src/auth/dto/register-device.req.dto';
 
 @Injectable()
 export class DeviceService {
@@ -18,14 +17,14 @@ export class DeviceService {
     });
   }
 
-  async registerDevice(registerDeviceReqDto: RegisterDeviceReqDto) {
-    // return await this.deviceRepository.create({
-    //   ...configureDeviceReqDto,
-    //   accessToken: null,
-    //   refreshToken: null,
-    //   expiresIn: null,
-    // });
-  }
+  // async registerDevice(registerDeviceReqDto: RegisterDeviceReqDto) {
+  //   return await this.deviceRepository.create({
+  //     ...configureDeviceReqDto,
+  //     accessToken: null,
+  //     refreshToken: null,
+  //     expiresIn: null,
+  //   });
+  // }
 
   async setTokens(
     deviceId: string,

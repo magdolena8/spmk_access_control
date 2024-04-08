@@ -1,5 +1,11 @@
 export class OAuthTokenReqDto {
-  username: string;
-  password: string;
-  grant_type: string;
+  grant_type: GrantType;
+  username?: string;
+  password?: string;
+  refresh_token?: string;
+}
+
+export enum GrantType {
+  password = 'password',
+  refresh_token = 'refresh_token',
 }

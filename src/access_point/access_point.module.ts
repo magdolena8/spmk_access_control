@@ -18,7 +18,7 @@ import { AccessPointHTTPController } from './controllers/access_point.http.contr
       { name: AccessPointDocument.name, schema: AccessPointSchema },
     ]),
     MessagingModule.register({
-      queueName: process.env.RABBITMQ_ACCESS_EVENT_QUEUE,
+      queueName: process.env.RABBITMQ_ACCESS_POINT_QUEUE,
     }),
   ],
   controllers: [AccessPointHTTPController, AccessPointRMQController],

@@ -4,6 +4,12 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { DeviceModule } from 'src/device/device.module';
+import { DatabaseModule } from 'src/repository/database.module';
+import {
+  AuthConfigDocument,
+  AuthConfigSchema,
+} from './schemas/auth-config.schema';
+import { AuthConfigRepository } from './auth-config.repository';
 
 @Module({
   imports: [
@@ -15,8 +21,11 @@ import { DeviceModule } from 'src/device/device.module';
       inject: [ConfigService],
     }),
     DeviceModule,
+    DatabaseModule.forFeature([
+      { name: AuthConfigDocument.name, schema: AuthConfigSchema },
+    ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, AuthConfigRepository],
 })
 export class AuthModule {}
