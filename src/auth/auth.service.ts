@@ -1,9 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { RegisterDeviceReqDto } from './dto/register-device.req.dto';
-import {
-  DeviceRegistrationStatus,
-  RegisterDeviceResDto,
-} from './dto/register-device.res.dto';
 import { OAuthTokenResDto } from './dto/oauth-token.res.dto';
 import { DeviceService } from 'src/device/device.service';
 import { OAuthTokenReqDto } from './dto/oauth-token.req.dto copy';
@@ -11,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AuthConfigDocument } from './schemas/auth-config.schema';
 import { AuthConfigRepository } from './auth-config.repository';
 import { JwtService } from '@nestjs/jwt';
+import { DeviceDocument } from 'src/device/schemas/device.schema';
 
 @Injectable()
 export class AuthService {
@@ -21,13 +17,16 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
   async onModuleInit() {
-    AuthService.authConfig = await this.getAuthConfig();
+    AuthService.authConfig = await this.getGlobalAuthConfig();
   }
 
-  async getAuthConfig() {
+  async getGlobalAuthConfig() {
     return await this.authConfigRepository.findOne({});
   }
-  async setAuthConfig(config: { accessToken: string; refreshToken: string }) {
+  async setGlobalAuthConfig(config: {
+    accessToken: string;
+    refreshToken: string;
+  }) {
     try {
       const updatedConfig = await this.authConfigRepository.findOneAndUpdate(
         {},
@@ -40,46 +39,71 @@ export class AuthService {
     }
   }
 
-  async registerDevice(
-    registerDeviceReqDto: RegisterDeviceReqDto,
-  ): Promise<RegisterDeviceResDto> {
-    console.log(registerDeviceReqDto);
-    const response = await Promise.resolve(
-      new RegisterDeviceResDto({
-        // id: registerDeviceReqDto.deviceId,
-        id: 'ec44b5c3-734a-4266-a231-a652b04bb079',
-        login: 'login',
-        is_success: true,
-        status: DeviceRegistrationStatus.SUCCESS,
-        name: 'name',
-        password: 'password',
-      }),
-    );
-    return response;
-  }
+  // async registerDevice(
+  //   registerDeviceReqDto: RegisterDeviceReqDto,
+  // ): Promise<RegisterDeviceResDto> {
+  //   const response = await Promise.resolve(
+  //     new RegisterDeviceResDto({
+  //       id: registerDeviceReqDto.deviceId,
+  //       // id: 'ec44b5c3-734a-4266-a231-a652b04bb079',
+  //       login: 'login',
+  //       is_success: true,
+  //       status: DeviceRegistrationStatus.SUCCESS,
+  //       name: registerDeviceReqDto.name,
+  //       password: 'password',
+  //     }),
+  //   );
+  //   return response;
+  // }
 
   async auth(OAuthTokenDto: OAuthTokenReqDto): Promise<OAuthTokenResDto> {
-    await this.validateCredentials(
+    const device = await this.validateDeviceCredentials(
       OAuthTokenDto.username,
       OAuthTokenDto.password,
     );
-    const tokens = await this.generateTokensPair();
-    const updatedConfig = await this.setAuthConfig({
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-    });
+    if (!device) {
+      if (
+        await this.validateGlobalCredentials(
+          OAuthTokenDto.username,
+          OAuthTokenDto.password,
+        )
+      ) {
+        const globalTokens = await this.generateGlobalTokensPair();
+        const updatedGlobalConfig = await this.setGlobalAuthConfig({
+          accessToken: globalTokens.access_token,
+          refreshToken: globalTokens.refresh_token,
+        });
+        return {
+          access_token: updatedGlobalConfig.accessToken,
+          refresh_token: updatedGlobalConfig.refreshToken,
+          expires_in: globalTokens.expires_in,
+        };
+      }
+    }
+    const deviceTokens = await this.generateDeviceTokensPair(device.id);
+    const updatedDeviceConfig = await this.deviceService.setTokens(
+      device._id.toString(),
+      deviceTokens.access_token,
+      deviceTokens.refresh_token,
+      deviceTokens.expires_in,
+    );
     return {
-      access_token: updatedConfig.accessToken,
-      refresh_token: updatedConfig.refreshToken,
-      expires_in: tokens.expires_in,
+      access_token: updatedDeviceConfig.accessToken,
+      refresh_token: updatedDeviceConfig.refreshToken,
+      expires_in: deviceTokens.expires_in,
     };
   }
 
   async refreshToken(refreshToken: string): Promise<OAuthTokenResDto> {
-    const currentAuthConfig = await this.getAuthConfig();
-    if (currentAuthConfig.refreshToken === refreshToken) {
-      const newTokens = await this.generateTokensPair();
-      await this.setAuthConfig({
+    // const currentAuthConfig = await this.getGlobalAuthConfig();
+    const device = await this.deviceService.findDevice({
+      refreshToken: refreshToken,
+    });
+    if (!device)
+      throw new UnauthorizedException({ message: 'Invalid refresh token' });
+    if (device.refreshToken === refreshToken) {
+      const newTokens = await this.generateDeviceTokensPair(device.id);
+      await this.setGlobalAuthConfig({
         accessToken: newTokens.access_token,
         refreshToken: newTokens.refresh_token,
       });
@@ -88,20 +112,39 @@ export class AuthService {
       throw new UnauthorizedException({ message: 'Ivnalid refresh token' });
   }
 
-  async validateCredentials(login: string, password: string) {
-    //TODO: megrate credentials to mongo
-    if (
-      login === process.env.CLOUD_LOGIN &&
-      password === process.env.CLOUD_PASSWORD
-    ) {
-      return true;
-    } else throw new UnauthorizedException({ message: 'Inavlid credentials' });
+  async validateDeviceCredentials(
+    login: string,
+    password: string,
+  ): Promise<DeviceDocument> {
+    // TODO: megrate credentials to mongo
+    const device = await this.deviceService.findDevice({
+      login: login,
+      password: password,
+    });
+    return device ? device : null;
   }
 
-  async generateTokensPair(): Promise<OAuthTokenResDto> {
+  async validateGlobalCredentials(login: string, password: string) {
+    return (
+      login === process.env.CLOUD_LOGIN &&
+      password === process.env.CLOUD_PASSWORD
+    );
+  }
+
+  async generateDeviceTokensPair(deviceId: string): Promise<OAuthTokenResDto> {
     return {
       access_token: await this.jwtService.signAsync({
-        deviceIds: '123123',
+        deviceIds: deviceId,
+      }),
+      refresh_token: uuidv4(),
+      expires_in: 60,
+    };
+  }
+
+  async generateGlobalTokensPair(): Promise<OAuthTokenResDto> {
+    return {
+      access_token: await this.jwtService.signAsync({
+        globaluath: true,
       }),
       refresh_token: uuidv4(),
       expires_in: 60,

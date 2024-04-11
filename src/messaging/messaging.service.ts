@@ -24,10 +24,15 @@ export class MessagingService {
         queue: options.queueName,
       },
     });
+    this.client.connect().catch((error) => {
+      console.error('Error connecting to RabbitMQ:', error);
+    });
   }
 
   public async sendToQueue(pattern: RMQCommand, data: any): Promise<any> {
-    return this.client.send(pattern, new RmqRecordBuilder(data).build());
+    return this.client
+      .send(pattern, new RmqRecordBuilder(data).build())
+      .subscribe();
   }
 
   public async emitToQueue(pattern: RMQEvent, data: any): Promise<void> {

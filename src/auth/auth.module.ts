@@ -10,6 +10,7 @@ import {
   AuthConfigSchema,
 } from './schemas/auth-config.schema';
 import { AuthConfigRepository } from './auth-config.repository';
+import { JwtStrategy } from './strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import { AuthConfigRepository } from './auth-config.repository';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthConfigRepository],
+  providers: [AuthService, AuthConfigRepository, JwtStrategy],
 })
 export class AuthModule {}

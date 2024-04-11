@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './repository/database.module';
 import { AccessPointModule } from './access_point/access_point.module';
 import { MessagingModule } from './messaging/messaging.module';
+import { JwtGuard } from './auth/guard/jwt.gurad';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { MessagingModule } from './messaging/messaging.module';
     MessagingModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [JwtGuard],
 })
 export class AppModule {}

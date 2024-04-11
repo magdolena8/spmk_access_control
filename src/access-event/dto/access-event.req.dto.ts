@@ -20,7 +20,7 @@ enum AccessReason {
   EMPLOYEE_ID_NOT_FIND = 'EMPLOYEE_ID_NOT_FIND',
 }
 
-export class AccessRequestDto {
+export class AccessEventReqDto {
   measuredWeight: number;
   alcoholTestValue: number;
   identifierType: IdentifierType;

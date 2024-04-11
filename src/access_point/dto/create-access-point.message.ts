@@ -3,4 +3,5 @@ import { AccessPointDocument } from '../schemas/access-point.schema';
 
 export class CreateAccessPointMessage extends PickType(AccessPointDocument, [
   'name',
+  'id',
 ] as const) {}

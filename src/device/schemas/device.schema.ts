@@ -116,27 +116,39 @@ const DeviceConfigurationSchema =
 export class DeviceDocument extends AbstractDocument {
   @Prop({ type: [PeripheryConfigurationSchema], default: [] })
   @Type(() => PeripheryConfiguration)
-  peripheryConfiguration: PeripheryConfiguration[];
+  peripheryConfiguration?: PeripheryConfiguration[];
 
   @Prop({ type: [AccessPointsConfigurationSchema], default: [] })
   @Type(() => AccessPointsConfiguration)
-  accessPointsConfiguration: AccessPointsConfiguration[];
+  accessPointsConfiguration?: AccessPointsConfiguration[];
 
   @Prop({ type: DeviceConfigurationSchema })
   @Type(() => DeviceConfiguration)
-  deviceConfiguration: DeviceConfiguration;
+  deviceConfiguration?: DeviceConfiguration;
 
   @Prop()
-  firmwareVersion: string;
+  firmwareVersion?: string;
 
-  @Prop()
-  accessToken: string;
+  @Prop({ type: String })
+  accessToken?: string;
 
-  @Prop()
-  refreshToken: string;
+  @Prop({ type: String })
+  refreshToken?: string;
 
-  @Prop()
-  expiresIn: number;
+  @Prop({ type: Number })
+  expiresIn?: number;
+
+  @Prop({ type: String })
+  login?: string;
+
+  @Prop({ type: String })
+  password?: string;
+
+  @Prop({ type: String })
+  id?: string;
+
+  @Prop({ type: String })
+  name?: string;
 }
 
 export const DeviceSchema = SchemaFactory.createForClass(DeviceDocument);

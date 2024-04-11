@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { AccessPointRepository } from './access_point.repository';
-import { v4 as uuidv4 } from 'uuid';
 import { AccessPointDocument } from './schemas/access-point.schema';
 import { CreateAccessPointReqDto } from './dto/create-access-point.req.dto copy';
 import { CreateAccessPointMessage } from './dto/create-access-point.message';
@@ -13,7 +12,7 @@ export class AccessPointService {
     createAccessPointReq: CreateAccessPointReqDto | CreateAccessPointMessage,
   ) {
     return await this.accessPointRepository.create({
-      id: uuidv4(),
+      id: createAccessPointReq.id,
       name: createAccessPointReq.name,
       enabled:
         'enabled' in createAccessPointReq ? createAccessPointReq.enabled : true,
