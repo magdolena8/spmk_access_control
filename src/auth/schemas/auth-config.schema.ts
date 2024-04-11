@@ -10,10 +10,10 @@ export class AuthConfigDocument extends AbstractDocument {
   password: string;
 
   @Prop({ type: String })
-  accessToken: string;
+  accessToken?: string;
 
   @Prop({ type: String })
-  refreshToken: string;
+  refreshToken?: string;
 }
 
 export const AuthConfigSchema =

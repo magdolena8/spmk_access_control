@@ -150,4 +150,14 @@ export class AuthService {
       expires_in: 60,
     };
   }
+
+  async createAuthConfig(login: string, password: string) {
+    const authConfig = await this.authConfigRepository.findOne({});
+    if (authConfig)
+      throw new Error('WARNGIN createAuthConfig: auth config already exists');
+    return await this.authConfigRepository.create({
+      login: login,
+      password: password,
+    });
+  }
 }

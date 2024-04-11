@@ -7,6 +7,7 @@ import { DatabaseModule } from './repository/database.module';
 import { AccessPointModule } from './access_point/access_point.module';
 import { MessagingModule } from './messaging/messaging.module';
 import { JwtGuard } from './auth/guard/jwt.gurad';
+import { SeedsModule } from './shared/seeds.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { JwtGuard } from './auth/guard/jwt.gurad';
     ConfigModule,
     AccessPointModule,
     MessagingModule,
+    SeedsModule,
   ],
   controllers: [],
   providers: [JwtGuard],
