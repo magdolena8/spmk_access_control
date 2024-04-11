@@ -6,16 +6,3 @@ services:
       - 127.0.0.1:27017:27017
     volumes:
       - ./data/db:/data/db
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    hostname: rabbitmq
-    volumes:
-      - /var/lib/rabbitmq
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-    env_file:
-      - .env
-    restart: always
