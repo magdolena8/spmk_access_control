@@ -3,7 +3,7 @@ export class AccessEventMessage {
     public id: string,
     public accessPoint: string,
     public cardCode: number,
-    public diretion: 'IN' | 'OUT',
+    public direction: 'IN' | 'OUT',
     public dateTime: string,
   ) {}
 }
