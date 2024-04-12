@@ -103,10 +103,12 @@ export class AuthService {
       throw new UnauthorizedException({ message: 'Invalid refresh token' });
     if (device.refreshToken === refreshToken) {
       const newTokens = await this.generateDeviceTokensPair(device.id);
-      await this.setGlobalAuthConfig({
-        accessToken: newTokens.access_token,
-        refreshToken: newTokens.refresh_token,
-      });
+      await this.deviceService.setTokens(
+        device._id.toString(),
+        newTokens.access_token,
+        newTokens.refresh_token,
+        newTokens.expires_in,
+      );
       return newTokens;
     } else
       throw new UnauthorizedException({ message: 'Ivnalid refresh token' });
@@ -117,6 +119,8 @@ export class AuthService {
     password: string,
   ): Promise<DeviceDocument> {
     // TODO: megrate credentials to mongo
+    console.log(login, password);
+
     const device = await this.deviceService.findDevice({
       login: login,
       password: password,
