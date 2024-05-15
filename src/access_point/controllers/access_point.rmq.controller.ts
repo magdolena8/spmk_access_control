@@ -8,6 +8,7 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 import { MessagingService } from 'src/messaging/messaging.service';
+import { DeleteAccessPointMessage } from '../dto/delete-access-point.message';
 
 @Controller()
 export class AccessPointRMQController {
@@ -22,5 +23,13 @@ export class AccessPointRMQController {
     @Payload() payload: CreateAccessPointMessage,
   ) {
     await this.accessPointService.createAccessPoint(payload);
+  }
+
+  @MessagePattern('delete-access-point')
+  async handlePlaceDeleted(
+    @Ctx() context: RmqContext,
+    @Payload() payload: DeleteAccessPointMessage,
+  ) {
+    await this.accessPointService.deleteAccessPoint(payload);
   }
 }

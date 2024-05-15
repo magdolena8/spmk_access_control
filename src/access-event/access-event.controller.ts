@@ -8,6 +8,8 @@ export class AccessEventController {
 
   @Post('access-event')
   handleAccessEvent(@Body() createAccessEventDto: AccessEventReqDto) {
+    console.log(createAccessEventDto);
+
     return this.accessEventService.create(createAccessEventDto);
   }
 }

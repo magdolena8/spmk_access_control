@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { AccessPointRepository } from './access_point.repository';
 import { AccessPointDocument } from './schemas/access-point.schema';
-import { CreateAccessPointReqDto } from './dto/create-access-point.req.dto copy';
 import { CreateAccessPointMessage } from './dto/create-access-point.message';
+import { DeleteAccessPointMessage } from './dto/delete-access-point.message';
+import { CreateAccessPointReqDto } from './dto/create-access-point.req.dto';
 
 @Injectable()
 export class AccessPointService {
@@ -24,5 +25,13 @@ export class AccessPointService {
 
   async findAccessPoints(): Promise<AccessPointDocument[]> {
     return await this.accessPointRepository.find({});
+  }
+
+  async deleteAccessPoint(
+    deleteAccessPointDto: DeleteAccessPointMessage,
+  ): Promise<AccessPointDocument> {
+    return await this.accessPointRepository.findOneAndDelete({
+      id: deleteAccessPointDto.id,
+    });
   }
 }
